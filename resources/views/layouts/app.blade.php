@@ -21,6 +21,7 @@
             ['route' => 'pd.netflow', 'label' => 'PD Netflow', 'can' => 'pd.view', 'icon' => 'chart'],
             ['route' => 'pd.migration', 'label' => 'PD Migration', 'can' => 'pd.view', 'icon' => 'arrows'],
             ['route' => 'lgd.index', 'label' => 'LGD', 'can' => 'lgd.view', 'icon' => 'shield'],
+            ['route' => 'klasifikasi.index', 'label' => 'Klasifikasi CKPN', 'can' => 'klasifikasi.view', 'icon' => 'clipboard'],
             ['route' => 'ckpn.index', 'label' => 'Perhitungan CKPN', 'can' => 'ckpn.view', 'icon' => 'calculator'],
         ])),
         'Administrasi' => array_values(array_filter([

@@ -15,6 +15,7 @@ class SetupParameterSeeder extends Seeder
         'perusahaan.npwp' => '',
         'perusahaan.logo' => '',
         'ckpn.threshold_individual' => 500000000,
+        'ckpn.individual_maks_rekening' => 10,
         'ckpn.lookback_default' => 12,
         'ckpn.basis_pd' => 'debitur',
         'ckpn.col_default' => 3,

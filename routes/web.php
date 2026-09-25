@@ -11,6 +11,7 @@ use App\Livewire\Admin\Permissions as PermissionsIndex;
 use App\Livewire\Admin\Roles as RolesIndex;
 use App\Livewire\Admin\Users as UsersIndex;
 use App\Livewire\Ckpn\Index as CkpnIndex;
+use App\Livewire\Klasifikasi\Index as KlasifikasiIndex;
 use App\Livewire\Lgd\Index as LgdIndex;
 use App\Livewire\Master\KodeAkad as KodeAkadMaster;
 use App\Livewire\Pd\Migration as PdMigration;
@@ -63,6 +64,7 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/ckpn', CkpnIndex::class)->name('ckpn.index');
     Route::get('/master/kode-akad', KodeAkadMaster::class)->name('master.kode-akad');
     Route::get('/setup/ckpn-role', CkpnRoleSetup::class)->name('setup.ckpn-role');
+    Route::get('/klasifikasi', KlasifikasiIndex::class)->name('klasifikasi.index');
 
     Route::get('/admin/users', UsersIndex::class)->name('admin.users');
     Route::get('/admin/roles', RolesIndex::class)->name('admin.roles');
