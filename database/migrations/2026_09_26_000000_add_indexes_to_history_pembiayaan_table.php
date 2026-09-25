@@ -19,9 +19,7 @@ return new class extends Migration
             // - LgdCalculator::calculate() - filter by nokontrak + periode
             // - RollRateCalculator::build() - filter by periode + join nokontrak
             // - ImportDataService - validation queries
-            if (! $this->indexExists('history_pembiayaan', 'idx_hp_nokontrak_periode')) {
-                $table->index(['nokontrak', 'periode'], 'idx_hp_nokontrak_periode');
-            }
+            $table->index(['nokontrak', 'periode'], 'idx_hp_nokontrak_periode');
         });
     }
 
@@ -33,15 +31,5 @@ return new class extends Migration
         Schema::table('history_pembiayaan', function (Blueprint $table) {
             $table->dropIndex('idx_hp_nokontrak_periode');
         });
-    }
-
-    /**
-     * Helper: Check if index exists to prevent duplicate index errors.
-     */
-    private function indexExists(string $table, string $index): bool
-    {
-        $indexes = Schema::getConnection()->getDoctrineSchemaManager()->listTableIndexes($table);
-
-        return isset($indexes[$index]);
     }
 };

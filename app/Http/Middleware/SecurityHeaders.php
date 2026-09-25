@@ -25,10 +25,14 @@ class SecurityHeaders
             $response->header('X-Content-Type-Options', 'nosniff');
             $response->header('Referrer-Policy', 'strict-origin-when-cross-origin');
             $response->header('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
-            
+
             // S2 FIX: Strict Content-Security-Policy
             // - default-src 'self': block all except from same origin
-            // - script-src 'self' 'unsafe-inline' (temporary for Livewire compatibility)
+            // - script-src 'self' 'unsafe-inline' 'unsafe-eval': Livewire 4
+            //   mengevaluasi ekspresi wire:* lewat new Function(), sehingga
+            //   'unsafe-eval' wajib ada agar aksi form (mis. simpan) tidak
+            //   diblokir browser. Ekspresi dijalankan dari aset sendiri,
+            //   bukan input pengguna.
             // - style-src 'self' 'unsafe-inline' (temporary for Tailwind inline styles)
             // - img-src 'self' data: https: (allow data URIs and remote images)
             // - font-src 'self' data: (allow fonts from same origin and data URIs)
@@ -38,19 +42,19 @@ class SecurityHeaders
             // - base-uri 'self' (prevent changing base URL)
             // - form-action 'self' (prevent form submission to external sites)
             $csp = "default-src 'self'; "
-                . "script-src 'self' 'unsafe-inline'; "
-                . "style-src 'self' 'unsafe-inline'; "
-                . "img-src 'self' data: https:; "
-                . "font-src 'self' data:; "
-                . "connect-src 'self'; "
-                . "frame-ancestors 'none'; "
-                . "object-src 'none'; "
-                . "base-uri 'self'; "
-                . "form-action 'self'; "
-                . "upgrade-insecure-requests;";
-            
+                ."script-src 'self' 'unsafe-inline' 'unsafe-eval'; "
+                ."style-src 'self' 'unsafe-inline'; "
+                ."img-src 'self' data: https:; "
+                ."font-src 'self' data:; "
+                ."connect-src 'self'; "
+                ."frame-ancestors 'none'; "
+                ."object-src 'none'; "
+                ."base-uri 'self'; "
+                ."form-action 'self'; "
+                .'upgrade-insecure-requests;';
+
             $response->header('Content-Security-Policy', $csp);
-            
+
             if ($request->isSecure()) {
                 $response->header('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
             }
