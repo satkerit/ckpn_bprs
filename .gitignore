@@ -1,0 +1,93 @@
+# Laravel & Framework
+/vendor
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/storage/pail
+/storage/*.key
+/storage/logs
+/bootstrap/cache
+/database/database.sqlite
+/database/database.sqlite-journal
+/.env
+/.env.*.php
+/.env.php
+.env.backup
+.env.production
+.env.local
+.env.*.local
+
+# Laravel IDE & Code Tools
+.phpactor.json
+.phpunit.result.cache
+/.phpunit.cache
+_ide_helper.php
+_ide_helper_models.php
+/.idea
+/.vscode
+/.cursor
+/.nova
+/.trae
+/.zed
+/.claude
+/.codex
+
+# IDE & Editor
+*.code-workspace
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Composer & NPM
+auth.json
+composer.lock
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Homestead & Vagrant
+Homestead.json
+Homestead.yaml
+vagrant.box
+
+# Logs & Temporary Files
+*.log
+/logs
+npm-debug.log
+yarn-error.log
+
+# OS Files
+.AppleDouble
+.LSOverride
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+
+# Build & Runtime
+/dist
+/build
+/out
+node_modules
+*.phar
+
+# Optional npm cache
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Testing Coverage
+/coverage
+/.coverage
+/coverage.xml
+/htmlcov
+
+# Local dev overrides
+.nvmrc.local
+.php-version.local
+
+AGENTS.md
+CLAUDE.md
