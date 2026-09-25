@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Pd;
 
+use App\Enums\DimensiSegmentasi;
 use App\Models\CkpnPdNetflow;
 use App\Models\CkpnPeriode;
 use App\Models\CkpnRollRate;
@@ -50,7 +51,19 @@ class Migration extends Component
             $previousPeriode = now()->setDate((int) substr($this->periode, 0, 4), (int) substr($this->periode, 4, 2), 1)
                 ->subMonth()
                 ->format('Ym');
-            app(RollRateCalculator::class)->build($run->id, $this->periode, $previousPeriode, $this->lookbackBulan);
+
+            // Kunci segmentasi harus sama persis dengan yang dipakai CkpnCalculator,
+            // jika tidak PD tidak akan ditemukan saat pairing hasil.
+            $dimensions = $run->segments()->orderBy('urutan')->pluck('dimensi')->all()
+                ?: array_column(DimensiSegmentasi::cases(), 'value');
+
+            app(RollRateCalculator::class)->build(
+                $run->id,
+                $this->periode,
+                $previousPeriode,
+                $this->lookbackBulan,
+                $dimensions,
+            );
 
             foreach (app(PdMigrationCalculator::class)->calculate(CkpnRollRate::query()->where('ckpn_run_id', $run->id)->get()) as $pd) {
                 CkpnPdNetflow::query()->create(['ckpn_run_id' => $run->id, ...$pd]);

@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Pd;
 
+use App\Enums\DimensiSegmentasi;
 use App\Models\CkpnPdNetflow;
 use App\Models\CkpnPeriode;
 use App\Models\CkpnRollRate;
@@ -50,11 +51,18 @@ class Netflow extends Component
             $previousPeriode = now()->setDate((int) substr($this->periode, 0, 4), (int) substr($this->periode, 4, 2), 1)
                 ->subMonth()
                 ->format('Ym');
+
+            // Kunci segmentasi harus sama persis dengan yang dipakai CkpnCalculator,
+            // jika tidak PD tidak akan ditemukan saat pairing hasil.
+            $dimensions = $run->segments()->orderBy('urutan')->pluck('dimensi')->all()
+                ?: array_column(DimensiSegmentasi::cases(), 'value');
+
             app(RollRateCalculator::class)->build(
                 $run->id,
                 $this->periode,
                 $previousPeriode,
                 $this->lookbackBulan,
+                $dimensions,
             );
 
             $pdRows = app(PdNetflowCalculator::class)->calculate(

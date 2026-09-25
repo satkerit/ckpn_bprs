@@ -2,6 +2,7 @@
 
 namespace App\Services\Ckpn;
 
+use App\Enums\DimensiSegmentasi;
 use App\Models\CkpnRollRate;
 use App\Models\HistoryPembiayaan;
 use Illuminate\Support\Collection;
@@ -9,15 +10,18 @@ use Illuminate\Support\Facades\DB;
 
 class RollRateCalculator
 {
-    public function __construct(private readonly AkadRoleResolver $roles) {}
+    public function __construct(
+        private readonly AkadRoleResolver $roles,
+        private readonly SegmentKeyBuilder $segments,
+    ) {}
 
-    public function build(int $runId, string $periode, string $previousPeriode, int $lookbackBulan): void
+    public function build(int $runId, string $periode, string $previousPeriode, int $lookbackBulan, array $dimensions = []): void
     {
         $target = now()->setDate((int) substr($periode, 0, 4), (int) substr($periode, 4, 2), 1);
         $periods = collect(range(1, max(1, $lookbackBulan)))
             ->map(fn (int $month): string => $target->copy()->subMonths($month)->format('Ym'))
             ->push($periode);
-        
+
         $rows = collect();
 
         // P2 FIX: Query per pasangan periode (T-1 → T) instead of loading entire lookback window.
@@ -30,7 +34,7 @@ class RollRateCalculator
                     ->with('pembiayaan')
                     ->whereIn('periode', [$period, $next])
                     ->get();
-                $rows = $rows->merge($this->calculate($histories, $next, $period, $runId));
+                $rows = $rows->merge($this->calculate($histories, $next, $period, $runId, $dimensions));
             }
         }
 
@@ -44,9 +48,10 @@ class RollRateCalculator
 
     /**
      * @param  Collection<int, HistoryPembiayaan>  $histories
+     * @param  array<int, string>  $dimensions
      * @return Collection<int, array<string, mixed>>
      */
-    public function calculate(Collection $histories, string $periode, string $previousPeriode, int $runId): Collection
+    public function calculate(Collection $histories, string $periode, string $previousPeriode, int $runId, array $dimensions = []): Collection
     {
         $current = $histories->where('periode', $periode)->keyBy('nokontrak');
         $previous = $histories->where('periode', $previousPeriode)->keyBy('nokontrak');
@@ -69,7 +74,7 @@ class RollRateCalculator
                 'ckpn_run_id' => $runId,
                 'periode_asal' => $previousPeriode,
                 'periode_tujuan' => $periode,
-                'segment_key' => $this->segment($before),
+                'segment_key' => $this->segment($before, $dimensions),
                 'bucket_asal' => $bucketBefore,
                 'bucket_tujuan' => $bucketAfter,
                 'jumlah_rekening' => 1,
@@ -88,13 +93,24 @@ class RollRateCalculator
         ])->values();
     }
 
-    private function segment(HistoryPembiayaan $history): string
+    /**
+     * Kunci segmentasi mengikuti dimensi yang dipilih pada run.
+     * Tanpa pilihan, semua dimensi dipakai agar hasil tetap konsisten
+     * dengan perilaku sebelumnya.
+     *
+     * @param  array<int, string>  $dimensions
+     */
+    private function segment(HistoryPembiayaan $history, array $dimensions = []): string
     {
-        return implode('|', [
-            'kdloc='.$history->kdloc,
-            'pokpby='.$history->pokpby,
-            'gunadeb='.$history->pembiayaan?->gunadeb,
-            'kdprd='.$history->kdprd,
-        ]);
+        $dimensions = $dimensions === []
+            ? array_column(DimensiSegmentasi::cases(), 'value')
+            : $dimensions;
+
+        return $this->segments->build([
+            'kdloc' => $history->kdloc,
+            'pokpby' => $history->pokpby,
+            'gunadeb' => $history->pembiayaan?->gunadeb,
+            'kdprd' => $history->kdprd,
+        ], $dimensions);
     }
 }
